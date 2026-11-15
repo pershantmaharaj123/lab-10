@@ -1,0 +1,209 @@
+
+class Book:
+    def __init__(self, book_id, title, author, quantity):
+        self.book_id = book_id
+        self.title = title
+        self.author = author
+        self.quantity = quantity
+
+
+class Library:
+    def __init__(self):
+        self.books = {}       # Stores books using book ID
+        self.issued_books = []  # Stores issued book records
+
+    # 1. Add a new book
+    def add_book(self):
+        book_id = input("Enter Book ID: ")
+
+        if book_id in self.books:
+            print("Error: Book ID already exists!")
+            return
+
+        title = input("Enter Book Title: ")
+        author = input("Enter Author Name: ")
+
+        try:
+            quantity = int(input("Enter Quantity: "))
+
+            if quantity <= 0:
+                print("Quantity must be a positive number!")
+                return
+
+        except ValueError:
+            print("Invalid quantity! Enter a whole number.")
+            return
+
+        book = Book(book_id, title, author, quantity)
+        self.books[book_id] = book
+
+        print("Book added successfully!")
+
+    # 2. View all books
+    def view_books(self):
+        if not self.books:
+            print("No books available in the library.")
+            return
+
+        print("\n===== ALL BOOKS =====")
+
+        for book in self.books.values():
+            print("-------------------------")
+            print("Book ID:", book.book_id)
+            print("Title:", book.title)
+            print("Author:", book.author)
+            print("Available Quantity:", book.quantity)
+
+    # 3. Search for a book
+    def search_book(self):
+        search = input("Enter Book ID or Title: ").strip()
+
+        found = False
+
+        for book in self.books.values():
+            if (book.book_id == search or
+                book.title.lower() == search.lower()):
+
+                print("\nBook Found!")
+                print("Book ID:", book.book_id)
+                print("Title:", book.title)
+                print("Author:", book.author)
+                print("Available Quantity:", book.quantity)
+
+                found = True
+
+        if not found:
+            print("Book not found!")
+
+    # 4. Issue a book
+    def issue_book(self):
+        book_id = input("Enter Book ID: ")
+
+        if book_id not in self.books:
+            print("Book not found!")
+            return
+
+        book = self.books[book_id]
+
+        if book.quantity <= 0:
+            print("Sorry! No copies available.")
+            return
+
+        student = input("Enter Student Name: ").strip()
+
+        if not student:
+            print("Student name cannot be empty!")
+            return
+
+        # Store issued book information
+        record = {
+            "book_id": book_id,
+            "title": book.title,
+            "student": student
+        }
+
+        self.issued_books.append(record)
+
+        book.quantity -= 1
+
+        print("Book issued successfully!")
+        print("Available Quantity:", book.quantity)
+
+    # 5. Return a book
+    def return_book(self):
+        book_id = input("Enter Book ID: ")
+        student = input("Enter Student Name: ").strip()
+
+        for record in self.issued_books:
+            if (record["book_id"] == book_id and
+                record["student"].lower() == student.lower()):
+
+                self.issued_books.remove(record)
+
+                if book_id in self.books:
+                    self.books[book_id].quantity += 1
+
+                print("Book returned successfully!")
+                return
+
+        print("No matching issued book record found!")
+
+    # 6. Delete a book
+    def delete_book(self):
+        book_id = input("Enter Book ID: ")
+
+        if book_id not in self.books:
+            print("Book not found!")
+            return
+
+        # Check whether any copy is currently issued
+        for record in self.issued_books:
+            if record["book_id"] == book_id:
+                print("Cannot delete! This book is currently issued.")
+                return
+
+        del self.books[book_id]
+
+        print("Book deleted successfully!")
+
+    # 7. View issued books
+    def view_issued_books(self):
+        if not self.issued_books:
+            print("No books are currently issued.")
+            return
+
+        print("\n===== ISSUED BOOKS =====")
+
+        for record in self.issued_books:
+            print("-------------------------")
+            print("Book ID:", record["book_id"])
+            print("Book Title:", record["title"])
+            print("Student Name:", record["student"])
+
+    # 8. Main menu
+    def menu(self):
+        while True:
+            print("\n===== LIBRARY MANAGEMENT SYSTEM =====")
+            print("1. Add Book")
+            print("2. View All Books")
+            print("3. Search Book")
+            print("4. Issue Book")
+            print("5. Return Book")
+            print("6. Delete Book")
+            print("7. View Issued Books")
+            print("8. Exit")
+
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                self.add_book()
+
+            elif choice == "2":
+                self.view_books()
+
+            elif choice == "3":
+                self.search_book()
+
+            elif choice == "4":
+                self.issue_book()
+
+            elif choice == "5":
+                self.return_book()
+
+            elif choice == "6":
+                self.delete_book()
+
+            elif choice == "7":
+                self.view_issued_books()
+
+            elif choice == "8":
+                print("Thank you for using the Library Management System!")
+                break
+
+            else:
+                print("Invalid choice! Please select 1-8.")
+
+
+# Create a library object and start the program
+library = Library()
+library.menu()
